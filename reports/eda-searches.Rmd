@@ -15,7 +15,9 @@ theme_set(theme_bw())
 ```
 
 ```{r ETL}
-buscas = read_csv(here::here("data/search_data.csv"))
+buscas = read_csv(here::here("data/search_data.csv")) %>% 
+    mutate(date = ymd_hms(session_start_timestamp))  %>% 
+    ungroup()
 ```
 
 ```{r}
@@ -23,4 +25,15 @@ buscas %>%
     ggplot(aes(x = results)) + 
     geom_histogram(binwidth = 5) 
 ```
+
+```{r}
+buscas %>%
+    filter(results == 0) %>%
+    mutate(date = round_date(date, unit = "day")) %>% 
+    count(date, group) %>% 
+    ggplot(aes(x = date, y = n, fill = group)) + 
+    geom_area()
+```
+
+
 
