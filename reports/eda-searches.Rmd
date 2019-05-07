@@ -25,8 +25,56 @@ buscas %>%
     ggplot(aes(x = results)) + 
     geom_histogram(binwidth = 5) 
 ```
+Questão 1
+What is our daily overall clickthrough rate? How does it vary between the groups?
 
 ```{r}
+sessions = buscas %>%
+    mutate(date = round_date(date, unit = "day")) %>% 
+    group_by(date, group) %>%
+    summarise(sessions_per_day = n_distinct(session_id))
+    
+    
+sessions_with_one_click = buscas %>%    
+    filter (num_clicks > 0)%>%
+    mutate(date = round_date(date, unit = "day")) %>% 
+    group_by(date, group) %>%
+    count(date, group)
+    # ggplot(aes(x = date, y = , colour=group)) +
+    # geom_line()
+```
+
+```{r}
+buscas %>%
+    mutate(date = round_date(date, unit = "day")) %>% 
+    group_by(date, group) %>%    
+    mutate(sessions_per_day = count(date, group)) %>%
+    filter (num_clicks > 0)%>% 
+    ggplot(aes(x = date, y = n/sessions_per_day, colour=group)) +
+    geom_point()
+```
+
+
+Questão 2
+Which results do people tend to try first? How does it change day-to-day?
+```{r}
+buscas %>%    
+    filter (first_click < 1000)%>%
+    mutate(date = round_date(date, unit = "day")) %>% 
+    group_by(date, group, first_click) %>%
+    count(date, group) %>% 
+    ggplot(aes(x = date, y = n, colour=first_click)) +
+    geom_point()
+```
+
+Questão 3
+What is our daily overall zero results rate? How does it vary between the groups?
+```{r}
+sessions = buscas %>%
+    mutate(date = round_date(date, unit = "day")) %>% 
+    group_by(date, group) %>%
+    summarise(sessions_per_day = n_distinct(session_id))
+
 buscas %>%
     filter(results == 0) %>%
     mutate(date = round_date(date, unit = "day")) %>% 
@@ -35,5 +83,7 @@ buscas %>%
     geom_area()
 ```
 
+Questão 4
+Let session length be approximately the time between the first event and the last event in a session. Choose a variable from the dataset and describe its relationship to session length. Visualize the relationship.
 
 
